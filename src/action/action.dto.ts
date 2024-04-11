@@ -1,9 +1,9 @@
-import { IsNumber, IsString, Min, MinLength, IsEnum, IsArray, ValidateNested, ArrayMinSize } from 'class-validator';
+import { IsNumber, IsString, Min, MinLength, IsEnum, IsArray, ValidateNested, IsOptional } from 'class-validator';
 import { EActionValueType, ESkills } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-class AffectingSkill {
+class AffectingSkillDTO {
     @IsEnum(ESkills)
     @ApiProperty({
         enum: ESkills,
@@ -34,9 +34,9 @@ export class CreateActionDTO {
     baseValueType: EActionValueType;
 
     @IsArray()
-    @ArrayMinSize(1)
+    @IsOptional()
     @ApiProperty()
-    @Type(() => AffectingSkill)
+    @Type(() => AffectingSkillDTO)
     @ValidateNested()
-    skills: AffectingSkill[];
+    affectingSkills?: AffectingSkillDTO[];
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDTO, UserSkillDTO } from 'src/user/user.dto';
 import { PrismaService } from 'src/prisma.service';
-import { UserSkills } from './user.types';
+import { UserSkillSet } from './user.types';
 
 @Injectable()
 export class UserService {
@@ -20,7 +20,7 @@ export class UserService {
     }
 
     private initializeUserSkills(skillsDTO: UserSkillDTO[]) {
-        const userSkills: UserSkills = {
+        const userSkills: UserSkillSet = {
             dexterity: 10,
             endurance: 10,
             intelligence: 10,
@@ -42,12 +42,12 @@ export class UserService {
             return 'User with this name already exists';
         }
 
-        const userSkills = this.initializeUserSkills(userDto.skills);
+        const userSkillSet = this.initializeUserSkills(userDto.skills);
         await this.prisma.user.create({
             data: {
                 name: userDto.name,
-                skills: {
-                    create: [userSkills],
+                skillSet: {
+                    create: userSkillSet,
                 },
             },
         });
@@ -57,7 +57,7 @@ export class UserService {
     async getUsers() {
         return await this.prisma.user.findMany({
             include: {
-                skills: true,
+                skillSet: true,
             },
         });
     }
@@ -68,7 +68,7 @@ export class UserService {
                 name,
             },
             include: {
-                skills: true,
+                skillSet: true,
             },
         });
     }
@@ -80,18 +80,18 @@ export class UserService {
             return 'User was not found';
         }
 
-        if (userToDelete.skills[0])
-            await this.prisma.skillSet.delete({
-                where: {
-                    id: userToDelete.skills[0].id,
-                },
-            });
-
         await this.prisma.user.delete({
             where: {
                 name,
             },
         });
+
+        if (userToDelete.skillSet)
+            await this.prisma.skillSet.delete({
+                where: {
+                    id: userToDelete.skillSet.id,
+                },
+            });
         return 'User was deleted';
     }
 }
