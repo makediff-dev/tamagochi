@@ -2,8 +2,8 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { EActionNames } from '@prisma/client';
 import { UseActionService } from './use-action.service';
-import { ErrorHandler } from 'models/error-handler';
-import { ActionsQueueHandler } from 'models/actions-queue-handler';
+import { ErrorHandler } from '../../models/error-handler';
+import { ActionsQueueHandler } from './actions-queue-handler';
 
 @ApiTags('Use Actions')
 @Controller('use-actions')

@@ -14,7 +14,7 @@ export class ActionsQueueHandler {
         this.ctx = ctx;
     }
 
-    private getUserQueue(username: string) {
+    public getUserQueue(username: string) {
         if (!this.usersQueue.has(username)) {
             this.usersQueue.set(username, { isHandling: false, queue: [] });
         }

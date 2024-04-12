@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Action, EActionNames, SkillSet } from '@prisma/client';
-import { ActionService } from 'src/action/action.service';
-import { UserService } from 'src/user/user.service';
-import { UserFull } from 'src/user/user.types';
+import { ActionService } from '../action/action.service';
+import { UserService } from '../user/user.service';
+import { UserFull } from '../user/user.types';
 
 @Injectable()
 export class UseActionService {
@@ -44,7 +44,7 @@ export class UseActionService {
         }
     }
 
-    async useExtraActions(user: UserFull) {
+    private async useExtraActions(user: UserFull) {
         const extraActions = await this.actionService.getExtraActions();
 
         for (const action of extraActions) {

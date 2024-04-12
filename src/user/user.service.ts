@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDTO, UserSkillDTO } from 'src/user/user.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 import { EChangeables, ESkills, SkillSet } from '@prisma/client';
 
 @Injectable()

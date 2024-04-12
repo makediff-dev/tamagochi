@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateActionDTO } from './action.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 import { EActionNames } from '@prisma/client';
 
 @Injectable()
@@ -51,5 +51,18 @@ export class ActionService {
         } catch (e) {
             return 'Main action was not created';
         }
+    }
+
+    async deleteAction(action: EActionNames) {
+        const existingAction = await this.getActionByName(action);
+        if (existingAction) {
+            await this.prisma.action.delete({
+                where: {
+                    name: action,
+                },
+            });
+            return 'Deleted an action';
+        }
+        return 'Action was not found';
     }
 }

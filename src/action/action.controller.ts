@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { CreateActionDTO } from './action.dto';
 import { ActionService } from './action.service';
 import { EActionNames } from '@prisma/client';
@@ -43,5 +43,15 @@ export class ActionController {
     @Post()
     async createAction(@Body() actionDTO: CreateActionDTO) {
         return await this.actionService.createAction(actionDTO);
+    }
+
+    @Delete(':action')
+    async deleteAction(@Param('action') action: EActionNames) {
+        const actionNameError = ErrorHandler.getActionNameError(action);
+        if (actionNameError) {
+            return actionNameError;
+        }
+
+        return await this.actionService.deleteAction(action);
     }
 }
