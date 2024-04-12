@@ -1,3 +1,3 @@
-import { ESkills } from '@prisma/client';
+import { Changeables, SkillSet, User } from '@prisma/client';
 
-export type UserSkills = Record<ESkills, number>;
+export type UserFull = User & { skillSet: SkillSet; changeables: Changeables };

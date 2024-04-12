@@ -1,11 +1,57 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { CreateActionDTO } from './action.dto';
+import { ActionService } from './action.service';
+import { EActionNames } from '@prisma/client';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ErrorHandler } from 'models/error-handler';
 
+@ApiTags('Actions')
 @Controller('actions')
 export class ActionController {
-    @Post('main')
-    async createMainAction(@Body() actionDTO: CreateActionDTO) {}
+    constructor(private actionService: ActionService) {}
 
-    @Post('extra')
-    async createExtraAction(@Body() actionDTO: CreateActionDTO) {}
+    @ApiParam({
+        name: 'action',
+        schema: {},
+        enum: EActionNames,
+    })
+    @Get('all/:action')
+    async getActionByName(@Param('action') action: EActionNames) {
+        const actionNameError = ErrorHandler.getActionNameError(action);
+        if (actionNameError) {
+            return actionNameError;
+        }
+
+        const targetAction = await this.actionService.getActionByName(action);
+        if (!targetAction) {
+            return 'Action was not found';
+        }
+
+        return targetAction;
+    }
+
+    @Get('main')
+    async getMainActions() {
+        return await this.actionService.getMainActions();
+    }
+
+    @Get('extra')
+    async getExtraActions() {
+        return await this.actionService.getExtraActions();
+    }
+
+    @Post()
+    async createAction(@Body() actionDTO: CreateActionDTO) {
+        return await this.actionService.createAction(actionDTO);
+    }
+
+    @Delete(':action')
+    async deleteAction(@Param('action') action: EActionNames) {
+        const actionNameError = ErrorHandler.getActionNameError(action);
+        if (actionNameError) {
+            return actionNameError;
+        }
+
+        return await this.actionService.deleteAction(action);
+    }
 }

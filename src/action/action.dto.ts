@@ -1,9 +1,9 @@
-import { IsNumber, IsString, Min, MinLength, IsEnum, IsArray, ValidateNested, ArrayMinSize } from 'class-validator';
-import { EActionValueType, ESkills } from '@prisma/client';
+import { IsNumber, IsString, Min, IsEnum, IsArray, ValidateNested, IsOptional } from 'class-validator';
+import { EActionNames, EActionTypes, EActionResultType, EChangeables, ESkills } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-class AffectingSkill {
+class AffectingSkillDTO {
     @IsEnum(ESkills)
     @ApiProperty({
         enum: ESkills,
@@ -16,10 +16,17 @@ class AffectingSkill {
 }
 
 export class CreateActionDTO {
-    @ApiProperty()
-    @IsString()
-    @MinLength(2)
-    name: string;
+    @ApiProperty({
+        enum: EActionNames,
+    })
+    @IsEnum(EActionNames)
+    name: EActionNames;
+
+    @ApiProperty({
+        enum: EActionTypes,
+    })
+    @IsEnum(EActionTypes)
+    type: EActionTypes;
 
     @ApiProperty()
     @IsNumber()
@@ -27,16 +34,22 @@ export class CreateActionDTO {
     baseValue: number;
 
     @IsString()
-    @IsEnum(EActionValueType)
+    @IsEnum(EActionResultType)
     @ApiProperty({
-        enum: EActionValueType,
+        enum: EActionResultType,
     })
-    baseValueType: EActionValueType;
+    resultType: EActionResultType;
+
+    @IsEnum(EChangeables)
+    @ApiProperty({
+        enum: EChangeables,
+    })
+    changeable: EChangeables;
 
     @IsArray()
-    @ArrayMinSize(1)
+    @IsOptional()
     @ApiProperty()
-    @Type(() => AffectingSkill)
+    @Type(() => AffectingSkillDTO)
     @ValidateNested()
-    skills: AffectingSkill[];
+    affectingSkills?: AffectingSkillDTO[];
 }

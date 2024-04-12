@@ -8,20 +8,22 @@ datasource db {
 }
 
 model User {
-  id     String     @id @default(auto()) @map("_id") @db.ObjectId
-  name   String     @unique
-  skills SkillSet[]
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  name          String      @unique
+  skillSetId    String      @db.ObjectId
+  changeablesId String      @db.ObjectId
+  skillSet      SkillSet    @relation(fields: [skillSetId], references: [id])
+  changeables   Changeables @relation(fields: [changeablesId], references: [id])
 }
 
 model SkillSet {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
-  user         User   @relation(fields: [userId], references: [id])
-  userId       String @unique @db.ObjectId
-  strength     Float
-  dexterity    Float
-  endurance    Float
-  intelligence Float
-  karma        Float
+  strength     Int    @default(5)
+  dexterity    Int    @default(5)
+  endurance    Int    @default(5)
+  intelligence Int    @default(5)
+  karma        Int    @default(5)
+  User         User[]
 }
 
 enum ESkills {
@@ -32,30 +34,50 @@ enum ESkills {
   karma
 }
 
+model Changeables {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  stone     Int    @default(0)
+  lootboxes Int    @default(0)
+  treasures Int    @default(0)
+  townHall  Float  @default(0)
+  User      User[]
+}
+
+enum EChangeables {
+  stone
+  lootboxes
+  treasures
+  townHall
+}
+
 model Action {
-  id             String           @id @default(auto()) @map("_id") @db.ObjectId
-  name           String           @unique
-  value          Float
-  valueType      EActionValueType
-  skills         ESkills[]
-  skillsDividers Float[]
-  MainAction     MainAction[]
-  ExtraAction    ExtraAction[]
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  name            EActionNames      @unique
+  type            EActionTypes
+  baseValue       Int
+  resultType      EActionResultType
+  changeable      EChangeables
+  affectingSkills AffectingSkill[]
 }
 
-enum EActionValueType {
-  percent
-  flat
+enum EActionNames {
+  getStone
+  getLootbox
+  exploreArea
+  buildTownHall
 }
 
-model MainAction {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  actionId String @db.ObjectId
-  action   Action @relation(fields: [actionId], references: [id])
+enum EActionTypes {
+  main
+  extra
 }
 
-model ExtraAction {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  actionId String @db.ObjectId
-  action   Action @relation(fields: [actionId], references: [id])
+type AffectingSkill {
+  name    ESkills
+  divider Float
+}
+
+enum EActionResultType {
+  fixed
+  random
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDTO, UserSkillDTO } from 'src/user/user.dto';
-import { PrismaService } from 'src/prisma.service';
-import { UserSkills } from './user.types';
+import { PrismaService } from '../prisma.service';
+import { EChangeables, ESkills, SkillSet } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -20,13 +20,7 @@ export class UserService {
     }
 
     private initializeUserSkills(skillsDTO: UserSkillDTO[]) {
-        const userSkills: UserSkills = {
-            dexterity: 10,
-            endurance: 10,
-            intelligence: 10,
-            karma: 10,
-            strength: 10,
-        };
+        const userSkills: Partial<SkillSet> = {};
 
         if (skillsDTO) {
             skillsDTO.forEach(skill => {
@@ -42,12 +36,15 @@ export class UserService {
             return 'User with this name already exists';
         }
 
-        const userSkills = this.initializeUserSkills(userDto.skills);
+        const userSkillSet = this.initializeUserSkills(userDto.skills);
         await this.prisma.user.create({
             data: {
                 name: userDto.name,
-                skills: {
-                    create: [userSkills],
+                skillSet: {
+                    create: userSkillSet,
+                },
+                changeables: {
+                    create: {},
                 },
             },
         });
@@ -57,7 +54,8 @@ export class UserService {
     async getUsers() {
         return await this.prisma.user.findMany({
             include: {
-                skills: true,
+                skillSet: true,
+                changeables: true,
             },
         });
     }
@@ -68,7 +66,8 @@ export class UserService {
                 name,
             },
             include: {
-                skills: true,
+                skillSet: true,
+                changeables: true,
             },
         });
     }
@@ -80,18 +79,57 @@ export class UserService {
             return 'User was not found';
         }
 
-        if (userToDelete.skills[0])
-            await this.prisma.skillSet.delete({
-                where: {
-                    id: userToDelete.skills[0].id,
-                },
-            });
-
         await this.prisma.user.delete({
             where: {
                 name,
             },
         });
+
+        if (userToDelete.skillSet) {
+            await this.prisma.skillSet.delete({
+                where: {
+                    id: userToDelete.skillSet.id,
+                },
+            });
+        }
+
+        if (userToDelete.changeables) {
+            await this.prisma.changeables.delete({
+                where: {
+                    id: userToDelete.changeables.id,
+                },
+            });
+        }
         return 'User was deleted';
+    }
+
+    async updateUserChangeables(username: string, changeableType: EChangeables, value: number) {
+        await this.prisma.user.update({
+            where: {
+                name: username,
+            },
+            data: {
+                changeables: {
+                    update: {
+                        [changeableType]: value,
+                    },
+                },
+            },
+        });
+    }
+
+    async updateUserSkillSet(username: string, skillName: ESkills, value: number) {
+        await this.prisma.user.update({
+            where: {
+                name: username,
+            },
+            data: {
+                skillSet: {
+                    update: {
+                        [skillName]: value,
+                    },
+                },
+            },
+        });
     }
 }
