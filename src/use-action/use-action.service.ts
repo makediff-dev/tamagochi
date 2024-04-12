@@ -11,7 +11,7 @@ export class UseActionService {
         private userService: UserService,
     ) {}
 
-    private getFlatActionResult(action: Action, userSkillSet: SkillSet): number {
+    private getFixedActionResult(action: Action, userSkillSet: SkillSet): number {
         let affectedBySkillsRatio = 1;
         action.affectingSkills.forEach(skill => {
             affectedBySkillsRatio += userSkillSet[skill.name] / skill.divider;
@@ -20,8 +20,8 @@ export class UseActionService {
         return action.baseValue * affectedBySkillsRatio;
     }
 
-    private getPercentActionResult(action: Action, userSkillSet: SkillSet): boolean {
-        const chance = this.getFlatActionResult(action, userSkillSet);
+    private getRandomActionResult(action: Action, userSkillSet: SkillSet): boolean {
+        const chance = this.getFixedActionResult(action, userSkillSet);
         const random = Math.random();
         if (chance / 100 >= random) {
             return true;
@@ -31,11 +31,11 @@ export class UseActionService {
 
     private async useAction(action: Action, user: UserFull) {
         let actionResult: number = 0;
-        if (action.resultType === 'stable') {
-            actionResult = Math.floor(this.getFlatActionResult(action, user.skillSet));
+        if (action.resultType === 'fixed') {
+            actionResult = Math.floor(this.getFixedActionResult(action, user.skillSet));
         }
-        if (action.resultType === 'chance') {
-            const chanceResult = this.getPercentActionResult(action, user.skillSet);
+        if (action.resultType === 'random') {
+            const chanceResult = this.getRandomActionResult(action, user.skillSet);
             actionResult = chanceResult ? 1 : 0;
         }
 
