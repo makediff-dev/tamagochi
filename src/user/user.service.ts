@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDTO, UserSkillDTO } from 'src/user/user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { UserSkillSet } from './user.types';
+import { EChangeables } from 'prisma/prisma.types';
 
 @Injectable()
 export class UserService {
@@ -20,13 +21,7 @@ export class UserService {
     }
 
     private initializeUserSkills(skillsDTO: UserSkillDTO[]) {
-        const userSkills: UserSkillSet = {
-            dexterity: 10,
-            endurance: 10,
-            intelligence: 10,
-            karma: 10,
-            strength: 10,
-        };
+        const userSkills: Partial<UserSkillSet> = {};
 
         if (skillsDTO) {
             skillsDTO.forEach(skill => {
@@ -49,6 +44,9 @@ export class UserService {
                 skillSet: {
                     create: userSkillSet,
                 },
+                changeables: {
+                    create: {},
+                },
             },
         });
         return 'User was created';
@@ -58,6 +56,7 @@ export class UserService {
         return await this.prisma.user.findMany({
             include: {
                 skillSet: true,
+                changeables: true,
             },
         });
     }
@@ -69,6 +68,7 @@ export class UserService {
             },
             include: {
                 skillSet: true,
+                changeables: true,
             },
         });
     }
@@ -86,12 +86,36 @@ export class UserService {
             },
         });
 
-        if (userToDelete.skillSet)
+        if (userToDelete.skillSet) {
             await this.prisma.skillSet.delete({
                 where: {
                     id: userToDelete.skillSet.id,
                 },
             });
+        }
+
+        if (userToDelete.changeables) {
+            await this.prisma.changeables.delete({
+                where: {
+                    id: userToDelete.changeables.id,
+                },
+            });
+        }
         return 'User was deleted';
+    }
+
+    async updateUserChangeables(username: string, changeableType: EChangeables, value: number) {
+        await this.prisma.user.update({
+            where: {
+                name: username,
+            },
+            data: {
+                changeables: {
+                    update: {
+                        [changeableType]: value,
+                    },
+                },
+            },
+        });
     }
 }

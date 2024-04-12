@@ -1,10 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { CreateActionDTO } from './action.dto';
 import { PrismaService } from 'src/prisma.service';
+import { EActionNames } from '@prisma/client';
 
 @Injectable()
 export class ActionService {
     constructor(private prisma: PrismaService) {}
+
+    async getActionByName(action: EActionNames) {
+        return await this.prisma.action.findUnique({
+            where: {
+                name: action,
+            },
+        });
+    }
 
     async getMainActions() {
         return await this.prisma.mainAction.findMany({

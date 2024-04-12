@@ -8,19 +8,21 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  name       String   @unique
-  skillSetId String   @db.ObjectId
-  skillSet   SkillSet @relation(fields: [skillSetId], references: [id])
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  name          String      @unique
+  skillSetId    String      @db.ObjectId
+  changeablesId String      @db.ObjectId
+  skillSet      SkillSet    @relation(fields: [skillSetId], references: [id])
+  changeables   Changeables @relation(fields: [changeablesId], references: [id])
 }
 
 model SkillSet {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
-  strength     Float
-  dexterity    Float
-  endurance    Float
-  intelligence Float
-  karma        Float
+  strength     Int    @default(5)
+  dexterity    Int    @default(5)
+  endurance    Int    @default(5)
+  intelligence Int    @default(5)
+  karma        Int    @default(5)
   User         User[]
 }
 
@@ -32,14 +34,30 @@ enum ESkills {
   karma
 }
 
+model Changeables {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  stone     Int    @default(0)
+  lootBoxes Int    @default(0)
+  treasures Int    @default(0)
+  townHall  Float  @default(0)
+  User      User[]
+}
+
 model Action {
   id              String           @id @default(auto()) @map("_id") @db.ObjectId
-  name            String           @unique
+  name            EActionNames     @unique
   value           Float
   valueType       EActionValueType
   affectingSkills AffectingSkill[]
   MainAction      MainAction[]
   ExtraAction     ExtraAction[]
+}
+
+enum EActionNames {
+  getStone
+  getLootbox
+  explore
+  buildTownHall
 }
 
 type AffectingSkill {
