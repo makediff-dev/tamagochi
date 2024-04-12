@@ -51,10 +51,10 @@ enum EChangeables {
 }
 
 model Action {
-  id              String           @id @default(auto()) @map("_id") @db.ObjectId
-  name            EActionNames     @unique
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  name            EActionNames      @unique
   type            EActionTypes
-  baseValue       Float
+  baseValue       Int
   resultType      EActionResultType
   changeable      EChangeables
   affectingSkills AffectingSkill[]
