@@ -1,15 +1,16 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { EActionNames } from '@prisma/client';
 import { UseActionService } from './use-action.service';
-import { ErrorHandler } from 'src/models/error-handler';
-import { ActionsQueueHandler } from 'src/models/actions-queue-handler';
+import { ErrorHandler } from 'models/error-handler';
+import { ActionsQueueHandler } from 'models/actions-queue-handler';
 
+@ApiTags('Use Actions')
 @Controller('use-actions')
 export class UseActionController {
     actionsQueueHandler: ActionsQueueHandler;
 
-    constructor(private useActionService: UseActionService) {
+    constructor(useActionService: UseActionService) {
         this.actionsQueueHandler = new ActionsQueueHandler(useActionService);
     }
 

@@ -25,7 +25,7 @@ export class ActionsQueueHandler {
         userQueue.isHandling = true;
         while (userQueue.queue.length > 0) {
             await this.ctx.useMainAction(userQueue.queue[0], username);
-            userQueue.queue.splice(0, 1);
+            userQueue.queue.shift();
         }
         userQueue.isHandling = false;
     }

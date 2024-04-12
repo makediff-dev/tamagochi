@@ -2,9 +2,10 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CreateActionDTO } from './action.dto';
 import { ActionService } from './action.service';
 import { EActionNames } from '@prisma/client';
-import { ApiParam } from '@nestjs/swagger';
-import { ErrorHandler } from 'src/models/error-handler';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ErrorHandler } from 'models/error-handler';
 
+@ApiTags('Actions')
 @Controller('actions')
 export class ActionController {
     constructor(private actionService: ActionService) {}
