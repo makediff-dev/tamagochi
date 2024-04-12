@@ -78,6 +78,6 @@ type AffectingSkill {
 }
 
 enum EActionResultType {
-  stable
-  chance
+  fixed
+  random
 }
