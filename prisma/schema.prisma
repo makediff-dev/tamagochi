@@ -37,7 +37,7 @@ enum ESkills {
 model Changeables {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   stone     Int    @default(0)
-  lootBoxes Int    @default(0)
+  lootboxes Int    @default(0)
   treasures Int    @default(0)
   townHall  Float  @default(0)
   User      User[]
@@ -46,8 +46,8 @@ model Changeables {
 model Action {
   id              String           @id @default(auto()) @map("_id") @db.ObjectId
   name            EActionNames     @unique
-  value           Float
-  valueType       EActionValueType
+  baseValue       Float
+  resultType      EActionValueType
   affectingSkills AffectingSkill[]
   MainAction      MainAction[]
   ExtraAction     ExtraAction[]
@@ -56,7 +56,7 @@ model Action {
 enum EActionNames {
   getStone
   getLootbox
-  explore
+  exploreArea
   buildTownHall
 }
 

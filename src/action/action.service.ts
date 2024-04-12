@@ -30,8 +30,8 @@ export class ActionService {
                     action: {
                         create: {
                             name: actionDTO.name,
-                            value: actionDTO.baseValue,
-                            valueType: actionDTO.baseValueType,
+                            baseValue: actionDTO.baseValue,
+                            resultType: actionDTO.resultType,
                             affectingSkills: actionDTO.affectingSkills,
                         },
                     },
@@ -58,8 +58,8 @@ export class ActionService {
                     action: {
                         create: {
                             name: actionDTO.name,
-                            value: actionDTO.baseValue,
-                            valueType: actionDTO.baseValueType,
+                            baseValue: actionDTO.baseValue,
+                            resultType: actionDTO.resultType,
                             affectingSkills: actionDTO.affectingSkills,
                         },
                     },

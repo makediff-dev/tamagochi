@@ -32,7 +32,7 @@ export class CreateActionDTO {
     @ApiProperty({
         enum: EActionValueType,
     })
-    baseValueType: EActionValueType;
+    resultType: EActionValueType;
 
     @IsArray()
     @IsOptional()

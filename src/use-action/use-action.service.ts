@@ -11,13 +11,22 @@ export class UseActionService {
         private userService: UserService,
     ) {}
 
-    private async getUserActionResult(action: Action, userSkillSet: SkillSet) {
+    private getFlatActionResult(action: Action, userSkillSet: SkillSet): number {
         let affectedBySkillsRatio = 1;
         action.affectingSkills.forEach(skill => {
             affectedBySkillsRatio += userSkillSet[skill.name] / skill.divider;
         });
 
-        return Math.floor(action.value * affectedBySkillsRatio);
+        return action.baseValue * affectedBySkillsRatio;
+    }
+
+    private getPercentActionResult(action: Action, userSkillSet: SkillSet): boolean {
+        const chance = this.getFlatActionResult(action, userSkillSet);
+        const random = Math.random();
+        if (chance / 100 >= random) {
+            return true;
+        }
+        return false;
     }
 
     async useMainAction(action: EActionNames, username: string) {
@@ -32,8 +41,18 @@ export class UseActionService {
         }
 
         const completeMainAction = async (changeableField: EChangeables) => {
-            const actionResult = await this.getUserActionResult(targetAction, targetUser.skillSet);
-            await this.userService.updateUserChangeables(username, changeableField, actionResult + targetUser.changeables[changeableField]);
+            let actionResult: number = 0;
+            if (targetAction.resultType === 'flat') {
+                actionResult = Math.floor(this.getFlatActionResult(targetAction, targetUser.skillSet));
+            }
+            if (targetAction.resultType === 'percent') {
+                const chanceResult = this.getPercentActionResult(targetAction, targetUser.skillSet);
+                actionResult = chanceResult ? 1 : 0;
+            }
+
+            if (actionResult > 0) {
+                await this.userService.updateUserChangeables(username, changeableField, actionResult + targetUser.changeables[changeableField]);
+            }
         };
 
         switch (action) {
@@ -41,9 +60,9 @@ export class UseActionService {
                 await completeMainAction(EChangeables.stone);
                 return `Completed getStone action for user ${username}`;
             }
-            case 'explore': {
+            case 'exploreArea': {
                 await completeMainAction(EChangeables.treasures);
-                return `Completed explore action for user ${username}`;
+                return `Completed exploreArea action for user ${username}`;
             }
             case 'buildTownHall': {
                 await completeMainAction(EChangeables.townHall);

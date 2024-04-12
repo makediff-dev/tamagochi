@@ -1,6 +1,6 @@
 export const enum EChangeables {
     stone = 'stone',
-    lootBoxes = 'lootBoxes',
+    lootboxes = 'lootboxes',
     treasures = 'treasures',
     townHall = 'townHall',
 }
