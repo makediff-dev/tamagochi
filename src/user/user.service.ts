@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDTO, UserSkillDTO } from 'src/user/user.dto';
 import { PrismaService } from 'src/prisma.service';
-import { UserSkillSet } from './user.types';
-import { EChangeables } from 'prisma/prisma.types';
+import { EChangeables, ESkills, SkillSet } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -21,7 +20,7 @@ export class UserService {
     }
 
     private initializeUserSkills(skillsDTO: UserSkillDTO[]) {
-        const userSkills: Partial<UserSkillSet> = {};
+        const userSkills: Partial<SkillSet> = {};
 
         if (skillsDTO) {
             skillsDTO.forEach(skill => {
@@ -113,6 +112,21 @@ export class UserService {
                 changeables: {
                     update: {
                         [changeableType]: value,
+                    },
+                },
+            },
+        });
+    }
+
+    async updateUserSkillSet(username: string, skillName: ESkills, value: number) {
+        await this.prisma.user.update({
+            where: {
+                name: username,
+            },
+            data: {
+                skillSet: {
+                    update: {
+                        [skillName]: value,
                     },
                 },
             },

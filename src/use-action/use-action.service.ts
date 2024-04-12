@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Action, EActionNames, SkillSet } from '@prisma/client';
-import { EChangeables } from 'prisma/prisma.types';
 import { ActionService } from 'src/action/action.service';
 import { UserService } from 'src/user/user.service';
+import { UserFull } from 'src/user/user.types';
 
 @Injectable()
 export class UseActionService {
@@ -29,6 +29,29 @@ export class UseActionService {
         return false;
     }
 
+    private async useAction(action: Action, user: UserFull) {
+        let actionResult: number = 0;
+        if (action.resultType === 'stable') {
+            actionResult = Math.floor(this.getFlatActionResult(action, user.skillSet));
+        }
+        if (action.resultType === 'chance') {
+            const chanceResult = this.getPercentActionResult(action, user.skillSet);
+            actionResult = chanceResult ? 1 : 0;
+        }
+
+        if (actionResult > 0) {
+            await this.userService.updateUserChangeables(user.name, action.changeable, actionResult + user.changeables[action.changeable]);
+        }
+    }
+
+    async useExtraActions(user: UserFull) {
+        const extraActions = await this.actionService.getExtraActions();
+
+        for (const action of extraActions) {
+            await this.useAction(action, user);
+        }
+    }
+
     async useMainAction(action: EActionNames, username: string) {
         const targetUser = await this.userService.getUserByName(username);
         if (!targetUser) {
@@ -36,41 +59,15 @@ export class UseActionService {
         }
 
         const targetAction = await this.actionService.getActionByName(action);
-        if (!action) {
+        if (!targetAction) {
             return 'Action was not found';
         }
-
-        const completeMainAction = async (changeableField: EChangeables) => {
-            let actionResult: number = 0;
-            if (targetAction.resultType === 'flat') {
-                actionResult = Math.floor(this.getFlatActionResult(targetAction, targetUser.skillSet));
-            }
-            if (targetAction.resultType === 'percent') {
-                const chanceResult = this.getPercentActionResult(targetAction, targetUser.skillSet);
-                actionResult = chanceResult ? 1 : 0;
-            }
-
-            if (actionResult > 0) {
-                await this.userService.updateUserChangeables(username, changeableField, actionResult + targetUser.changeables[changeableField]);
-            }
-        };
-
-        switch (action) {
-            case 'getStone': {
-                await completeMainAction(EChangeables.stone);
-                return `Completed getStone action for user ${username}`;
-            }
-            case 'exploreArea': {
-                await completeMainAction(EChangeables.treasures);
-                return `Completed exploreArea action for user ${username}`;
-            }
-            case 'buildTownHall': {
-                await completeMainAction(EChangeables.townHall);
-                return `Completed buildTownHall action for user ${username}`;
-            }
-            default: {
-                return 'You are trying to use an extra action';
-            }
+        if (targetAction.type !== 'main') {
+            return 'You must define MAIN action name';
         }
+
+        await this.useAction(targetAction, targetUser);
+        await this.useExtraActions(targetUser);
+        return `Completed ${targetAction.name} action for user ${targetUser.name}`;
     }
 }

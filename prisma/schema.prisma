@@ -43,14 +43,21 @@ model Changeables {
   User      User[]
 }
 
+enum EChangeables {
+  stone
+  lootboxes
+  treasures
+  townHall
+}
+
 model Action {
   id              String           @id @default(auto()) @map("_id") @db.ObjectId
   name            EActionNames     @unique
+  type            EActionTypes
   baseValue       Float
-  resultType      EActionValueType
+  resultType      EActionResultType
+  changeable      EChangeables
   affectingSkills AffectingSkill[]
-  MainAction      MainAction[]
-  ExtraAction     ExtraAction[]
 }
 
 enum EActionNames {
@@ -60,24 +67,17 @@ enum EActionNames {
   buildTownHall
 }
 
+enum EActionTypes {
+  main
+  extra
+}
+
 type AffectingSkill {
   name    ESkills
   divider Float
 }
 
-enum EActionValueType {
-  percent
-  flat
-}
-
-model MainAction {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  actionId String @db.ObjectId
-  action   Action @relation(fields: [actionId], references: [id])
-}
-
-model ExtraAction {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  actionId String @db.ObjectId
-  action   Action @relation(fields: [actionId], references: [id])
+enum EActionResultType {
+  stable
+  chance
 }

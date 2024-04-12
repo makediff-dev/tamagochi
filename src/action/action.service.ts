@@ -15,59 +15,41 @@ export class ActionService {
         });
     }
 
+    async getActions() {
+        return await this.prisma.action.findMany();
+    }
+
     async getMainActions() {
-        return await this.prisma.mainAction.findMany({
-            include: {
-                action: true,
+        return await this.prisma.action.findMany({
+            where: {
+                type: 'main',
             },
         });
     }
 
-    async createMainAction(actionDTO: CreateActionDTO) {
+    async getExtraActions() {
+        return await this.prisma.action.findMany({
+            where: {
+                type: 'extra',
+            },
+        });
+    }
+
+    async createAction(actionDTO: CreateActionDTO) {
         try {
-            await this.prisma.mainAction.create({
+            await this.prisma.action.create({
                 data: {
-                    action: {
-                        create: {
-                            name: actionDTO.name,
-                            baseValue: actionDTO.baseValue,
-                            resultType: actionDTO.resultType,
-                            affectingSkills: actionDTO.affectingSkills,
-                        },
-                    },
+                    name: actionDTO.name,
+                    type: actionDTO.type,
+                    baseValue: actionDTO.baseValue,
+                    resultType: actionDTO.resultType,
+                    affectingSkills: actionDTO.affectingSkills,
+                    changeable: actionDTO.changeable,
                 },
             });
             return 'Main action was created';
         } catch (e) {
             return 'Main action was not created';
-        }
-    }
-
-    async getExtraActions() {
-        return await this.prisma.extraAction.findMany({
-            include: {
-                action: true,
-            },
-        });
-    }
-
-    async createExtraAction(actionDTO: CreateActionDTO) {
-        try {
-            await this.prisma.extraAction.create({
-                data: {
-                    action: {
-                        create: {
-                            name: actionDTO.name,
-                            baseValue: actionDTO.baseValue,
-                            resultType: actionDTO.resultType,
-                            affectingSkills: actionDTO.affectingSkills,
-                        },
-                    },
-                },
-            });
-            return 'Extra action was created';
-        } catch (e) {
-            return 'Extra action was not created';
         }
     }
 }
