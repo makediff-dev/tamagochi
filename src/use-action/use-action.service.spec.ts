@@ -148,7 +148,5 @@ describe('Tamagochi tests', () => {
 
             await firstPromise;
         });
-
-        it('Expecting last queue element being a buildTownHall');
     });
 });
